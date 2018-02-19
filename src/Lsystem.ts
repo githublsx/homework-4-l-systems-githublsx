@@ -10,12 +10,16 @@ class Lsystem{
     angle: number;
     result: string;
     branches: vec3[];
+    ruleleft: string[];
+    ruleright: string[];
 
 //https://gist.github.com/bbengfort/11183420
 
-    constructor(axiom: string, num: number = 0, initator: string = 'F', length: number = 1, angle: number = 25 / 180 * Math.PI)
+    constructor(ruleleft: string[], ruleright: string[], num: number = 3, initator: string = 'F', length: number = 1, angle: number = 25 / 180 * Math.PI)
     {
-        this.axiom = axiom;
+        //this.axiom = axiom;
+        this.ruleleft = ruleleft;
+        this.ruleright = ruleright;
         this.num = num;
         this.initator = initator;
         this.length = length;
@@ -27,34 +31,34 @@ class Lsystem{
         var result = this.initator;
         for(var i = 0; i < this.num; i++)
         {
-            result = this.translate(result, this.axiom);
+            result = this.translate(result);
         }
         this.result = result;
         console.log(result);
     }
 
-    translate(current: string, axiom: string){
+    translate(current: string){
         //Translate all the "F" with the axiom for current string
         var result = "";
-        var consts = "+-[]";
         // var rule1 = "FF-[-F+F]+[+F-F]";
         // var rule2 = "FF+[+F]+[-F]";
         for(var i = 0; i < current.length; i++)
         {
-            if(consts.indexOf(current[i]) != -1)
+            let fitrule = false;
+            for(var j = 0; j < this.ruleleft.length; j++)
+            {  
+                if(current[i]==this.ruleleft[j])
+                {
+                    result += this.ruleright[j];
+                    fitrule = true;
+                    break;
+                }
+            }
+            if(!fitrule)
             {
                 result += current[i];
                 continue;
             }
-            else if(current[i]=='F')
-            {
-                result += this.axiom;
-            }
-            // else if(current[i]=='X')
-            // {
-            //     result += rule2;
-            // }
-
         }
         return result;
     }

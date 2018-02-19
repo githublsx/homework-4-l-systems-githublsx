@@ -20,6 +20,13 @@ const controls = {
   color: [182, 255, 208],
   shader: 'fun',
   drawable: 'sphere',
+  axoim: "A",
+  rule1: "A=[&FL!A]/////’[&FL!A]///////’[&FL!A]",
+  rule2: "F=S/////F",
+  rule3: "S=FL",
+  rule4: "L=[’’’∧∧{-f+f+f-|-f+f+f}]",
+  degree: 20,
+  iteration: 3,
 };
 
 let icosphere: Icosphere;
@@ -30,20 +37,49 @@ let lsystem: Lsystem;
 let icospheres: Icosphere[];
 let cylinders: Cylinders;
 
+function cutrule(ruleleft: string[], ruleright: string[], rule: string){
+  if(rule!="")
+  {
+    for(let i = 1; i < rule.length; i++)
+    {
+      if(rule[i]=="=")
+      {
+        console.log(rule.substring(0,i));
+        ruleleft.push(rule.substring(0,i));
+        console.log(rule.substring(i+1,rule.length));
+        ruleright.push(rule.substring(i+1,rule.length));
+        break;
+      }
+    }
+  }
+}
+
 function loadScene() {
 
   square = new Square(vec3.fromValues(0, 0, 0));
   square.create();
   cube = new Cube(vec3.fromValues(0, 0, 0));
   cube.create();
-  cylinder = new Cylinder(vec3.fromValues(0, 0, 0), 0.5, 1, 1, 4, 1, false, 0, 2 * Math.PI);
-  cylinder.create();
+  // cylinder = new Cylinder(vec3.fromValues(0, 0, 0), 0.5, 1, 1, 4, 1, false, 0, 2 * Math.PI);
+  // cylinder.create();
+  
+  var ruleleft = new Array<string>();
+  var ruleright = new Array<string>();
 
-  var axiom = "F[+&F]F[-^F]F";
-  lsystem = new Lsystem(axiom, 5, "F", 1, 20 / 180 * Math.PI);
+  //cut rule
+  cutrule(ruleleft, ruleright, controls.rule1);
+  cutrule(ruleleft, ruleright, controls.rule2);
+  cutrule(ruleleft, ruleright, controls.rule3);
+  cutrule(ruleleft, ruleright, controls.rule4);
+
+  lsystem = new Lsystem(ruleleft, ruleright, controls.iteration, controls.axoim, 1, controls.degree / 180 * Math.PI);
   lsystem.iterate();
   lsystem.process();
 
+  cylinders = new Cylinders(vec3.fromValues(0, 0, 0), 0.1, 0.1, 1, 20, 1, false, 0, 2 * Math.PI, lsystem.branches);
+  cylinders.create();
+
+  
   // icospheres = new Array<Icosphere>();
   // for(let i = 0; i < lsystem.branches.length; i += 2)
   // {
@@ -52,13 +88,8 @@ function loadScene() {
   //   icosphere.create();
   //   icospheres.push(icosphere);
   // }
-
-  icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
-  icosphere.create();
-  //console.log(`Start`);
-  //console.log(axiom);
-  cylinders = new Cylinders(vec3.fromValues(0, 0, 0), 0.1, 0.1, 1, 20, 1, false, 0, 2 * Math.PI, lsystem.branches);
-  cylinders.create();
+  // icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
+  // icosphere.create();
 }
 
 function main() {
@@ -73,10 +104,17 @@ function main() {
   // Add controls to the gui
   const gui = new DAT.GUI();
   gui.add(controls, 'tesselations', 0, 8).step(1);
-  gui.add(controls, 'Load Scene');
   gui.addColor(controls, 'color');
-  gui.add(controls, 'shader', ['lambert','fun']);
-  gui.add(controls, 'drawable', ['cube','sphere','square']);
+  // gui.add(controls, 'shader', ['lambert','fun']);
+  // gui.add(controls, 'drawable', ['cube','sphere','square']);
+  gui.add(controls, 'iteration');
+  gui.add(controls, 'degree');
+  gui.add(controls, 'axoim');
+  gui.add(controls, 'rule1');
+  gui.add(controls, 'rule2');
+  gui.add(controls, 'rule3');
+  gui.add(controls, 'rule4');
+  gui.add(controls, 'Load Scene');
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
