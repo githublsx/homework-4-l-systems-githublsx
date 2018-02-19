@@ -11,6 +11,7 @@ import Camera from './Camera';
 import {setGL} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 import Lsystem from './Lsystem';
+import Obj from './geometry/Obj';
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
@@ -26,7 +27,7 @@ const controls = {
   rule3: "S=FL",
   rule4: "L=[’’’∧∧{-f+f+f-|-f+f+f}]",
   degree: 20,
-  iteration: 3,
+  iteration: 8,
 };
 
 let icosphere: Icosphere;
@@ -36,6 +37,29 @@ let cylinder: Cylinder;
 let lsystem: Lsystem;
 let icospheres: Icosphere[];
 let cylinders: Cylinders;
+let obj: Obj;
+
+function readTextFile(file: string): string
+{
+    var allTest = "";
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file, false);
+    rawFile.onreadystatechange = function ()
+    {
+        if(rawFile.readyState === 4)
+        {
+            if(rawFile.status === 200 || rawFile.status == 0)
+            {
+                allTest = rawFile.responseText;
+                return allTest;
+            }
+        }
+    }
+    rawFile.send(null);
+    return allTest;
+}
+
+var bunny = readTextFile("/src/mesh/bare.obj");
 
 function cutrule(ruleleft: string[], ruleright: string[], rule: string){
   if(rule!="")
@@ -79,7 +103,9 @@ function loadScene() {
   cylinders = new Cylinders(vec3.fromValues(0, 0, 0), 0.1, 0.1, 1, 20, 1, false, 0, 2 * Math.PI, lsystem.branches);
   cylinders.create();
 
-  
+  console.log("bunny")
+  obj = new Obj(vec3.fromValues(0, 0, 0), bunny);
+  obj.create();
   // icospheres = new Array<Icosphere>();
   // for(let i = 0; i < lsystem.branches.length; i += 2)
   // {
@@ -92,7 +118,25 @@ function loadScene() {
   // icosphere.create();
 }
 
+
 function main() {
+
+  // load obj
+
+  //var bunny = "hello";
+  //MeshManager.push(readTextFile("./src/models/branch.obj"));
+  //var fs = require('fs');
+  // var fs = require('fs');
+  // console.log(fs);
+  // var data = fs.readFileSync('./src/mesh/bunny.obj').toString();
+
+//   fs.readFile('./src/mesh/bunny.obj', function (err, data) {
+//     if (err) {
+//         return console.error(err);
+//     }
+//     console.log("bunny: " + data.toString());
+// });
+
   // Initial display for framerate
   const stats = Stats();
   stats.setMode(0);
@@ -186,6 +230,8 @@ function main() {
     renderer.render(camera, shader, [cylinders], //[icosphere,//square,cube,], 
     vec4.fromValues(controls.color[0]/255, controls.color[1]/255, controls.color[2]/255, 1), dt/1000.0);
 
+    renderer.render(camera, shader, [obj], //[icosphere,//square,cube,], 
+      vec4.fromValues(controls.color[0]/255, controls.color[1]/255, controls.color[2]/255, 1), dt/1000.0);
     stats.end();
 
     // Tell the browser to call `tick` again whenever it renders a new frame

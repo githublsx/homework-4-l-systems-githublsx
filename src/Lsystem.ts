@@ -34,7 +34,7 @@ class Lsystem{
             result = this.translate(result);
         }
         this.result = result;
-        console.log(result);
+        //console.log(result);
     }
 
     translate(current: string){
