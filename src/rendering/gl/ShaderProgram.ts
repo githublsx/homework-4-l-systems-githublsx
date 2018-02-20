@@ -31,6 +31,12 @@ class ShaderProgram {
   unifColor: WebGLUniformLocation;
 
   unifTime: WebGLUniformLocation;
+  unifHeight: WebGLUniformLocation;
+  unifDirectionx: WebGLUniformLocation;
+  unifDirectionz: WebGLUniformLocation;
+  unifAmount: WebGLUniformLocation;
+  unifAmount2: WebGLUniformLocation;
+  unifStrength: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -51,6 +57,12 @@ class ShaderProgram {
     this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
     this.unifColor      = gl.getUniformLocation(this.prog, "u_Color");
     this.unifTime       = gl.getUniformLocation(this.prog, "u_Time");
+    this.unifHeight       = gl.getUniformLocation(this.prog, "u_Height");
+    this.unifDirectionx   = gl.getUniformLocation(this.prog, "u_Directionx");
+    this.unifDirectionz   = gl.getUniformLocation(this.prog, "u_Directionz");
+    this.unifAmount       = gl.getUniformLocation(this.prog, "u_Amount");
+    this.unifAmount2      = gl.getUniformLocation(this.prog, "u_Amount2");
+    this.unifStrength     = gl.getUniformLocation(this.prog, "u_Strength");
     
   }
 
@@ -93,6 +105,48 @@ class ShaderProgram {
     this.use();
     if (this.unifTime !== -1) {
       gl.uniform1f(this.unifTime, time);
+    }
+  }
+
+  setHeight(time: number) {
+    this.use();
+    if (this.unifHeight !== -1) {
+      gl.uniform1f(this.unifHeight, time);
+    }
+  }
+
+  setDirectionx(time: number) {
+    this.use();
+    if (this.unifDirectionx !== -1) {
+      gl.uniform1f(this.unifDirectionx, time);
+    }
+  }
+
+  setDirectionz (time: number) {
+    this.use();
+    if (this.unifDirectionz !== -1) {
+      gl.uniform1f(this.unifDirectionz , time);
+    }
+  }
+
+  setAmount (time: number) {
+    this.use();
+    if (this.unifAmount  !== -1) {
+      gl.uniform1f(this.unifAmount , time );
+    }
+  }
+
+  setAmount2 (time: number) {
+    this.use();
+    if (this.unifAmount2 !== -1) {
+      gl.uniform1f(this.unifAmount2, time);
+    }
+  }
+
+  setStrength(time: number) {
+    this.use();
+    if (this.unifStrength !== -1) {
+      gl.uniform1f(this.unifStrength, time);
     }
   }
 

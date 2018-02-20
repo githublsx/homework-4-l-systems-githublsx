@@ -29,15 +29,9 @@ out vec4 fs_Nor;            // The array of normals that has been transformed by
 out vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.
 out vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.
 
-const vec4 lightPos = vec4(0, -1, 0, 1); //The position of our virtual light, which is used to compute the shading of
+const vec4 lightPos = vec4(5, 5, 3, 1); //The position of our virtual light, which is used to compute the shading of
                                         //the geometry in the fragment shader.
-uniform float u_Time;
-uniform float u_Height;
-uniform float u_Amount;
-uniform float u_Amount2;
-uniform float u_Strength;
-uniform float u_Directionx;
-uniform float u_Directionz;
+
 void main()
 {
     fs_Col = vs_Col;                         // Pass the vertex colors to the fragment shader for interpolation
@@ -48,17 +42,12 @@ void main()
                                                             // model matrix. This is necessary to ensure the normals remain
                                                             // perpendicular to the surface after the surface is transformed by
                                                             // the model matrix.
-    float height = vs_Pos.y / u_Height;
-    vec2 direction = vec2(u_Directionx, u_Directionz);
-    normalize(direction);
-    // float amount = 0.08;
-    // float amount2 = 1.5;
-    // float strength = 2.0;
-    float weight = mix(0.0, (sin((u_Time + (vs_Pos.x * direction.x + vs_Pos.z * direction.y) * u_Amount) * u_Amount2))*u_Strength, height);
-    vec4 modelposition = u_Model * (vs_Pos * vec4(1.0, 1.0, 1.0, 1.0) + vec4(0.0, 0.0, weight, 0.0));   // Temporarily store the transformed vertex positions for use below
 
-    fs_LightVec = vec4(1, 1, 1, 0);  // Compute the direction in which the light source lies
 
+    vec4 modelposition = u_Model * vs_Pos;   // Temporarily store the transformed vertex positions for use below
+
+    //fs_LightVec = lightPos - modelposition;  // Compute the direction in which the light source lies
+    fs_LightVec = vec4(1, 1, 1, 0);
     gl_Position = u_ViewProj * modelposition;// gl_Position is a built-in variable of OpenGL which is
                                              // used to render the final positions of the geometry's vertices
 }

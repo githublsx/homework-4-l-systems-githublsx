@@ -16,11 +16,17 @@ class Lsystem{
     ruleleft: string[];
     ruleright: string[];
     probablity: number[];
+    transform: Branch[];
+    start: string;
+    randomness: number;
+    leafamount: number;
+    depthoffset: number;
 
 //https://gist.github.com/bbengfort/11183420
 
     constructor(ruleleft: string[], ruleright: string[], probablity: number[], num: number = 3, initator: string = 'F', 
-    length: number = 1, length2: number = 1, angle: number = 25 / 180 * Math.PI, angle2: number = 25 / 180 * Math.PI)
+    length: number = 1, length2: number = 1, angle: number = 25 / 180 * Math.PI, angle2: number = 25 / 180 * Math.PI, 
+    start: string, randomness: number, leafamount: number, depthoffset: number)
     {
         //this.axiom = axiom;
         this.ruleleft = ruleleft;
@@ -33,6 +39,11 @@ class Lsystem{
         this.angle = angle;
         this.angle2 = angle2;
         this.branches = new Array<Branch>();
+        this.transform = new Array<Branch>();
+        this.start = start;
+        this.randomness = randomness;
+        this.leafamount = leafamount;
+        this.depthoffset = depthoffset;
     }
 
     iterate(){
@@ -41,7 +52,7 @@ class Lsystem{
         {
             result = this.translate(result);
         }
-        this.result = "FFFFFFFFF" + result;
+        this.result = this.start + result;
         //console.log(result);
     }
 
@@ -113,7 +124,7 @@ class Lsystem{
 
                 var axis = vec3.create();
                 vec3.cross(axis, turtle.forward, forward);
-                turtle.applyRot(0.005 * depth, axis);
+                turtle.applyRot(0.005 * depth * this.randomness, axis);
 
                 turtle.moveForward(this.length + (Math.random()*2-1) * this.length2);
 
@@ -192,8 +203,18 @@ class Lsystem{
                 //  console.log("turtle.pos" + turtle.pos);
                  turtle.copy(turtlestack.pop());
                  depth = depthstack.pop();
+                 depth += Math.random() * this.depthoffset;
                 //  console.log('pop');
                 //  console.log('popend');
+            }
+            else if(result[i] == "!")
+            {
+                if(Math.random()<=this.leafamount)
+                {
+                    var branch = new Branch(turtle.pos, turtle.forward, depth);
+                    this.transform.push(branch);
+                }
+
             }
         }
         //map depth to 0 ~ 1
