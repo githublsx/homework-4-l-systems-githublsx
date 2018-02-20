@@ -1,6 +1,7 @@
 import {vec3, vec4, mat4} from 'gl-matrix';
 import Drawable from '../rendering/gl/Drawable';
 import {gl} from '../globals';
+import Branch from '../Branch'
 
 class Cylinders extends Drawable {
   indices: Uint32Array;
@@ -15,10 +16,14 @@ class Cylinders extends Drawable {
   openEnded: Boolean;
   thetaStart: number;
   thetaLength: number;
-  branches: vec3[];
+  branches: Branch[];
+
+  decrease: number;
+  decrease2: number;
 
   constructor(center: vec3,  radiusTop: number, radiusBottom: number, height: number, radialSegments: number, 
-    heightSegments: number, openEnded: Boolean, thetaStart: number, thetaLength: number, branches: vec3[]) {
+    heightSegments: number, openEnded: Boolean, thetaStart: number, thetaLength: number, branches: Branch[],
+    decrease: number, decrease2: number) {
     super(); // Call the constructor of the super class. This is required.
     this.center = vec4.fromValues(center[0], center[1], center[2], 1);
     this.radiusTop = radiusTop;
@@ -30,7 +35,24 @@ class Cylinders extends Drawable {
     this.thetaStart = thetaStart;
     this.thetaLength = thetaLength;
     this.branches = branches;
+    this.decrease = decrease;
+    this.decrease2 = decrease2;
   }
+
+  clamp(x: number, xmin: number, xmax: number)
+  {
+    return Math.max(xmin, Math.min(xmax, x));
+  }
+
+  smoothstep(x: number, edge0: number, edge1: number)
+  {
+    var t = this.clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+    return t * t * (3.0 - 2.0 * t);
+    //return Math.sin(t*Math.PI/2);
+    //return 1-(Math.sin(x/Math.PI*10 - Math.PI/2)/2+0.5);
+  }
+
+  
 
   computeRotationMatrix(startpoint: vec3, endpoint: vec3){
     var original = vec3.fromValues(0, 1, 0);
@@ -84,38 +106,50 @@ class Cylinders extends Drawable {
   var thetaLength = this.thetaLength !== undefined ? this.thetaLength : Math.PI * 2;
 
 
-  for(let i = 0; i < this.branches.length; i+=2)
+  for(let i = 0; i < this.branches.length; i++)
   {
     var verticeslength = vertices.length / 4;
     // console.log('i' + i/2 + 'length' + verticeslength);
     // console.log('i' + i/2 + 'length' + indices.length);
-    var startpoint = this.branches[i];
-    var endpoint = this.branches[i+1];
+    var startpoint = this.branches[i].startpoint;
+    var endpoint = this.branches[i].endpoint;
     var rotation = this.computeRotationMatrix(startpoint, endpoint);
     var translate = this.computeTranslateVector(startpoint, endpoint);
     var scale = this.computeScale(startpoint, endpoint);
     indexArray = new Array<number[]>();
     index = 0;
 
-    generateTorso(rotation, translate, scale, verticeslength);
+    if(i==0)
+    {
+      var discount = this.smoothstep(this.branches[i].depth, 1, 0);
+      var radiusTopnew = radiusTop * discount;
+      var radiusBottomnew = radiusBottom * discount;      
+    }
+    else{
+      var discount = this.smoothstep(this.branches[i].depth, 1, 0);
+      var radiusTopnew = radiusTop * discount;
+      discount = this.smoothstep(this.branches[i-1].depth, 1, 0);
+      var radiusBottomnew = radiusBottom * discount;
+    }
+    generateTorso(rotation, translate, scale, verticeslength, radiusTopnew, radiusBottomnew);
     if ( openEnded === false ) {
       if ( radiusTop > 0 ) generateCap( true, rotation, translate, scale, verticeslength);
       if ( radiusBottom > 0 ) generateCap( false, rotation, translate, scale, verticeslength);
     }
   }
 
-  function generateTorso(rotation: mat4, translate: vec3, scale: number, verticeslength: number) {
+  function generateTorso(rotation: mat4, translate: vec3, scale: number, verticeslength: number, radiusTopnew: number, radiusBottomnew: number) {
     var x, y;
     var normal;
     var vertex;
     var groupCount = 0;
-    var slope = ( radiusBottom - radiusTop ) / (height * scale);
+    var slope = ( radiusBottomnew - radiusTopnew ) / (height * scale);
     // generate vertices, normals and uvs
     for ( y = 0; y <= heightSegments; y ++ ) {
       var indexRow = [];
       var v = y / heightSegments;
       // calculate the radius of the current row
-      var radius = v * ( radiusBottom - radiusTop ) + radiusTop;
+      var radius = v * ( radiusBottomnew - radiusTopnew ) + radiusTopnew;
       for ( x = 0; x <= radialSegments; x ++ ) {
         var u = x / radialSegments;
         var theta = u * thetaLength + thetaStart;
@@ -127,8 +161,8 @@ class Cylinders extends Drawable {
         vertices.push( vertex[0] + translate[0], vertex[1] + translate[1], vertex[2] + translate[2], 1);
         // normal
         normal = vec3.fromValues( sinTheta, slope, cosTheta);
-        vec3.normalize(normal, normal);
         vec3.transformMat4(normal, normal, rotation);
+        vec3.normalize(normal, normal);
         normals.push( normal[0], normal[1], normal[2], 0);
         // save index of vertex in respective row
         indexRow.push( index ++ );
@@ -159,7 +193,7 @@ class Cylinders extends Drawable {
       var vertex;
       var normal;
       var groupCount = 0;
-      var radius = ( top === true ) ? radiusTop : radiusBottom;
+      var radius = ( top === true ) ? radiusTopnew : radiusBottomnew;
       var sign = ( top === true ) ? 1 : - 1;
       // save the index of the first center vertex
       centerIndexStart = index;
@@ -173,8 +207,8 @@ class Cylinders extends Drawable {
         vertices.push( vertex[0] + translate[0], vertex[1] + translate[1], vertex[2] + translate[2], 1);
         // normal
         normal = vec3.fromValues( 0, sign, 0);
-        vec3.normalize(normal, normal);
         vec3.transformMat4(normal, normal, rotation);
+        vec3.normalize(normal, normal);
         normals.push( normal[0], normal[1], normal[2], 0);
         // increase index
         index ++;

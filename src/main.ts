@@ -18,16 +18,27 @@ import Obj from './geometry/Obj';
 const controls = {
   tesselations: 6,
   'Load Scene': loadScene, // A function pointer, essentially
-  color: [182, 255, 208],
+  color: [255, 237, 222],
   shader: 'fun',
   drawable: 'sphere',
   axoim: "A",
-  rule1: "A=[&FL!A]/////’[&FL!A]///////’[&FL!A]",
+  rule1: "A=/////’[&FL!A]/////’[&FL!A]",
+  rule1b: "A=/////’[&FL!A]/////’[&FL!A]///////’[&FL!A]",
+  rule1c: "A=/////’[&FL!A]///’[&FL!A]////’[&FL!A]/////’[&FL!A]",
   rule2: "F=S/////F",
   rule3: "S=FL",
   rule4: "L=[’’’∧∧{-f+f+f-|-f+f+f}]",
-  degree: 20,
+  probablity1: 0.33,
+  probablity2: 0.33,
+  degree: 8,
+  degreeoffset: 3,
+  step: 1,
+  stepoffset: 0.5,
   iteration: 8,
+  radius: 2,
+  decrease: 1.5,
+  decrease2: 3,
+
 };
 
 let icosphere: Icosphere;
@@ -82,25 +93,31 @@ function loadScene() {
 
   square = new Square(vec3.fromValues(0, 0, 0));
   square.create();
-  cube = new Cube(vec3.fromValues(0, 0, 0));
+  cube = new Cube(vec3.fromValues(2, 2, 2));
   cube.create();
-  // cylinder = new Cylinder(vec3.fromValues(0, 0, 0), 0.5, 1, 1, 4, 1, false, 0, 2 * Math.PI);
-  // cylinder.create();
+  cylinder = new Cylinder(vec3.fromValues(0, 0, 0), 1, 1, 1, 4, 1, false, 0, 2 * Math.PI);
+  cylinder.create();
   
   var ruleleft = new Array<string>();
   var ruleright = new Array<string>();
+  var probablity = new Array<number>();
 
   //cut rule
   cutrule(ruleleft, ruleright, controls.rule1);
   cutrule(ruleleft, ruleright, controls.rule2);
   cutrule(ruleleft, ruleright, controls.rule3);
   cutrule(ruleleft, ruleright, controls.rule4);
+  cutrule(ruleleft, ruleright, controls.rule1b);
+  cutrule(ruleleft, ruleright, controls.rule1c);
+  probablity.push(controls.probablity1);
+  probablity.push(controls.probablity2);
 
-  lsystem = new Lsystem(ruleleft, ruleright, controls.iteration, controls.axoim, 1, controls.degree / 180 * Math.PI);
+
+  lsystem = new Lsystem(ruleleft, ruleright, probablity, controls.iteration, controls.axoim, controls.step, controls.stepoffset, controls.degree / 180 * Math.PI, controls.degreeoffset / 180 * Math.PI);
   lsystem.iterate();
   lsystem.process();
 
-  cylinders = new Cylinders(vec3.fromValues(0, 0, 0), 0.1, 0.1, 1, 20, 1, false, 0, 2 * Math.PI, lsystem.branches);
+  cylinders = new Cylinders(vec3.fromValues(0, 0, 0), controls.radius, controls.radius, 1.4, 6, 1, false, 0, 2 * Math.PI, lsystem.branches, controls.decrease, controls.decrease2);
   cylinders.create();
 
   console.log("bunny")
@@ -114,8 +131,8 @@ function loadScene() {
   //   icosphere.create();
   //   icospheres.push(icosphere);
   // }
-  // icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
-  // icosphere.create();
+  icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
+  icosphere.create();
 }
 
 
@@ -153,11 +170,21 @@ function main() {
   // gui.add(controls, 'drawable', ['cube','sphere','square']);
   gui.add(controls, 'iteration');
   gui.add(controls, 'degree');
+  gui.add(controls, 'degreeoffset');
+  gui.add(controls, 'step');
+  gui.add(controls, 'stepoffset');
   gui.add(controls, 'axoim');
   gui.add(controls, 'rule1');
+  gui.add(controls, 'rule1b');
+  gui.add(controls, 'rule1c');
+  gui.add(controls, 'probablity1', 0, 1).step(0.01);
+  gui.add(controls, 'probablity2', 0, 1).step(0.01);
   gui.add(controls, 'rule2');
   gui.add(controls, 'rule3');
   gui.add(controls, 'rule4');
+  gui.add(controls, 'radius');
+  gui.add(controls, 'decrease');
+  gui.add(controls, 'decrease2');
   gui.add(controls, 'Load Scene');
 
   // get canvas and webgl context
@@ -173,7 +200,7 @@ function main() {
   // Initial call to load scene
   loadScene();
 
-  const camera = new Camera(vec3.fromValues(0, 0, 5), vec3.fromValues(0, 0, 0));
+  const camera = new Camera(vec3.fromValues(0, 25, 60), vec3.fromValues(0, 25, 0));
 
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.2, 0.2, 0.2, 1);
@@ -229,6 +256,9 @@ function main() {
     // }
     renderer.render(camera, shader, [cylinders], //[icosphere,//square,cube,], 
     vec4.fromValues(controls.color[0]/255, controls.color[1]/255, controls.color[2]/255, 1), dt/1000.0);
+
+    // renderer.render(camera, shader, [cylinder], //[icosphere,//square,cube,], 
+    // vec4.fromValues(controls.color[0]/255, controls.color[1]/255, controls.color[2]/255, 1), dt/1000.0);
 
     renderer.render(camera, shader, [obj], //[icosphere,//square,cube,], 
       vec4.fromValues(controls.color[0]/255, controls.color[1]/255, controls.color[2]/255, 1), dt/1000.0);

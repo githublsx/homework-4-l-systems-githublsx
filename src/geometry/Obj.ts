@@ -40,11 +40,11 @@ class Obj extends Drawable {
     }
 
     this.indices = new Uint32Array(mesh.indices);
-    console.log(this.indices);
+    //console.log(this.indices);
     this.normals = new Float32Array(normals);
-    console.log(this.normals);
+    //console.log(this.normals);
     this.positions = new Float32Array(vertices);
-    console.log(this.positions);
+    //console.log(this.positions);
 
     this.generateIdx();
     this.generatePos();
