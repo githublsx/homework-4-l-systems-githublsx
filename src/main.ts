@@ -13,6 +13,7 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 import Lsystem from './Lsystem';
 import Obj from './geometry/Obj';
 import Objs from './geometry/Objs';
+import Objs2 from './geometry/Objs2'; 
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
@@ -22,7 +23,7 @@ const controls = {
   color: [255, 237, 222],
   color2: [255, 62, 62],//0, 194, 255
   color3: [57, 57, 50],//0, 194, 255
-  color4: [107, 71, 18],//0, 194, 255
+  color4: [70, 43, 4],//0, 194, 255
   shader: 'fun',
   drawable: 'sphere',
   start: "FFFFFFFFFFFFFF",
@@ -44,7 +45,7 @@ const controls = {
   decrease: 1.5,
   decrease2: 3,
   randomness: 1.2,
-  leafamount: 1,//1
+  leafamount: 0.9,//1
   terminatesize: 0.08,
 
   height: 100.0,
@@ -53,6 +54,9 @@ const controls = {
   amount: 0.08,
   amount2: 1.5,
   strength: 2.0,
+
+  fallingnum: 100,
+  fallingspeed: 5.0,
 };
 
 let icosphere: Icosphere;
@@ -65,6 +69,7 @@ let cylinders: Cylinders;
 let obj: Obj;
 let dirt: Obj;
 let objs: Objs;
+let objs2: Objs2;
 
 function readTextFile(file: string): string
 {
@@ -149,6 +154,9 @@ function loadScene() {
   objs = new Objs(vec3.fromValues(0, 0, 0), bunny, lsystem.transform);
   objs.create();
 
+  objs2 = new Objs2(vec3.fromValues(0, 0, 0), bunny, lsystem.largestpos, lsystem.smallestpos, controls.fallingnum);
+  objs2.create();
+
   // icospheres = new Array<Icosphere>();
   // for(let i = 0; i < lsystem.branches.length; i += 2)
   // {
@@ -217,7 +225,11 @@ function main() {
   f1ac.add(controls, 'randomness', 0, 5).step(0.01);
   var f2 = gui.addFolder('Leaf');
   f2.addColor(controls, 'color2');
-  f2.add(controls, 'leafamount', 0, 1).step(0.01)
+  var f2a = f2.addFolder('On');
+  f2a.add(controls, 'leafamount', 0, 1).step(0.01);
+  var f2b = f2.addFolder('Off');
+  f2b.add(controls, 'fallingnum', 0, 200).step(1);
+  f2b.add(controls, 'fallingspeed', 0, 10).step(0.01);
   var f4 = gui.addFolder('Others');
   f4.addColor(controls, 'color3');
   f4.addColor(controls, 'color4');
@@ -258,6 +270,11 @@ function main() {
 
   const lambert2 = new ShaderProgram([
     new Shader(gl.VERTEX_SHADER, require('./shaders/lambert-vert0.glsl')),
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')),
+  ]);
+
+  const lambert3 = new ShaderProgram([
+    new Shader(gl.VERTEX_SHADER, require('./shaders/lambert-vert1.glsl')),
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')),
   ]);
 
@@ -305,6 +322,13 @@ function main() {
     lambert.setDirectionx(controls.directionx);
     lambert.setDirectionz(controls.directionz);
     lambert.setStrength(controls.strength);
+    lambert3.setAmount(controls.amount);
+    lambert3.setAmount2(controls.amount2);
+    lambert3.setHeight(controls.height);
+    lambert3.setDirectionx(controls.directionx);
+    lambert3.setDirectionz(controls.directionz);
+    lambert3.setStrength(controls.strength);
+    lambert3.setSpeed(controls.fallingspeed);
 
     renderer.render(camera, lambert, [cylinders], //[icosphere,//square,cube,], 
     vec4.fromValues(controls.color[0]/255, controls.color[1]/255, controls.color[2]/255, 1), dt/1000.0);
@@ -320,7 +344,11 @@ function main() {
 
     renderer.render(camera, lambert, [objs], //[icosphere,//square,cube,], 
       vec4.fromValues(controls.color2[0]/255, controls.color2[1]/255, controls.color2[2]/255, 1), dt/1000.0);
-    stats.end();
+
+    renderer.render(camera, lambert3, [objs2], //[icosphere,//square,cube,], 
+      vec4.fromValues(controls.color2[0]/255, controls.color2[1]/255, controls.color2[2]/255, 1), dt/1000.0);
+    
+      stats.end();
 
     // Tell the browser to call `tick` again whenever it renders a new frame
     requestAnimationFrame(tick);

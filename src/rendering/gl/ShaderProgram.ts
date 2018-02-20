@@ -24,6 +24,7 @@ class ShaderProgram {
   attrPos: number;
   attrNor: number;
   attrCol: number;
+  attrCenter: number;
 
   unifModel: WebGLUniformLocation;
   unifModelInvTr: WebGLUniformLocation;
@@ -37,6 +38,8 @@ class ShaderProgram {
   unifAmount: WebGLUniformLocation;
   unifAmount2: WebGLUniformLocation;
   unifStrength: WebGLUniformLocation;
+
+  unifSpeed: WebGLUniformLocation; 
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -52,6 +55,7 @@ class ShaderProgram {
     this.attrPos = gl.getAttribLocation(this.prog, "vs_Pos");
     this.attrNor = gl.getAttribLocation(this.prog, "vs_Nor");
     this.attrCol = gl.getAttribLocation(this.prog, "vs_Col");
+    this.attrCenter = gl.getAttribLocation(this.prog, "vs_Center");
     this.unifModel      = gl.getUniformLocation(this.prog, "u_Model");
     this.unifModelInvTr = gl.getUniformLocation(this.prog, "u_ModelInvTr");
     this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
@@ -63,6 +67,7 @@ class ShaderProgram {
     this.unifAmount       = gl.getUniformLocation(this.prog, "u_Amount");
     this.unifAmount2      = gl.getUniformLocation(this.prog, "u_Amount2");
     this.unifStrength     = gl.getUniformLocation(this.prog, "u_Strength");
+    this.unifSpeed     = gl.getUniformLocation(this.prog, "u_Speed");
     
   }
 
@@ -150,12 +155,24 @@ class ShaderProgram {
     }
   }
 
+  setSpeed(time: number) {
+    this.use();
+    if (this.unifSpeed !== -1) {
+      gl.uniform1f(this.unifSpeed, time);
+    }
+  }
+
   draw(d: Drawable) {
     this.use();
 
     if (this.attrPos != -1 && d.bindPos()) {
       gl.enableVertexAttribArray(this.attrPos);
       gl.vertexAttribPointer(this.attrPos, 4, gl.FLOAT, false, 0, 0);
+    }
+
+    if (this.attrCenter != -1 && d.bindCenter()) {
+      gl.enableVertexAttribArray(this.attrCenter);
+      gl.vertexAttribPointer(this.attrCenter, 4, gl.FLOAT, false, 0, 0);
     }
 
     if (this.attrNor != -1 && d.bindNor()) {
@@ -168,6 +185,7 @@ class ShaderProgram {
 
     if (this.attrPos != -1) gl.disableVertexAttribArray(this.attrPos);
     if (this.attrNor != -1) gl.disableVertexAttribArray(this.attrNor);
+    if (this.attrCenter != -1) gl.disableVertexAttribArray(this.attrCenter);
   }
 };
 

@@ -21,6 +21,8 @@ class Lsystem{
     randomness: number;
     leafamount: number;
     depthoffset: number;
+    largestpos: vec3;
+    smallestpos: vec3;
 
 //https://gist.github.com/bbengfort/11183420
 
@@ -44,8 +46,42 @@ class Lsystem{
         this.randomness = randomness;
         this.leafamount = leafamount;
         this.depthoffset = depthoffset;
+        this.largestpos = vec3.fromValues(Number.MIN_VALUE,Number.MIN_VALUE,Number.MIN_VALUE);
+        this.smallestpos = vec3.fromValues(Number.MAX_VALUE,Number.MAX_VALUE,Number.MAX_VALUE);
     }
 
+    isalargerthanb(a: vec3, b: vec3)
+    {
+        if(a[0]>b[0])
+        {
+            a[0]=b[0];
+        }
+        if(a[1]>b[1])
+        {
+            a[1]=b[1];
+        }
+        if(a[2]>b[2])
+        {
+            a[2]=b[2];
+        }
+    }
+
+    isasmallerthanb(a: vec3, b: vec3)
+    {
+        if(a[0]<b[0])
+        {
+            a[0]=b[0];
+        }
+        if(a[1]<b[1])
+        {
+            a[1]=b[1];
+        }
+        if(a[2]<b[2])
+        {
+            a[2]=b[2];
+        }
+    }
+    
     iterate(){
         var result = this.initator;
         for(var i = 0; i < this.num; i++)
@@ -213,6 +249,8 @@ class Lsystem{
                 {
                     var branch = new Branch(turtle.pos, turtle.forward, depth);
                     this.transform.push(branch);
+                    this.isalargerthanb(this.smallestpos, turtle.pos);
+                    this.isasmallerthanb(this.largestpos, turtle.pos);
                 }
 
             }
