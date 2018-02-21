@@ -131,7 +131,7 @@ I use dat.GUI to make lots of aspects of the demo an interactive variable, inclu
 	* Lightambient: Add ambient to the color
 * Load Scene: Remember to press load scene to regenerate the tree after modifying the attributes!
 
-### Other screenshots
+### More screenshots
 
 Every time you hit 'Generate' you will get a random tree:
 
@@ -140,3 +140,13 @@ Every time you hit 'Generate' you will get a random tree:
 |![](img/5.png)|![](img/6.png)|![](img/7.png)|![](img/8.png)|
 |![](img/9.png)|![](img/10.png)|![](img/11.png)|![](img/12.png)|
 |![](img/13.png)|![](img/14.png)|![](img/15.png)|![](img/16.png)|
+
+## Resources
+
+- [webgl-obj-loader](https://www.npmjs.com/package/webgl-obj-loader)
+- [How to read a local text file?](https://stackoverflow.com/questions/14446447/how-to-read-a-local-text-file)
+- [Graphical modeling using L-systems](http://algorithmicbotany.org/papers/abop/abop-ch1.pdf)
+- [bbengfort/lsys.py](https://gist.github.com/bbengfort/11183420)
+- [typescript stack](https://gist.github.com/rorysaur/d546a3ade03c2d2dd7c3)
+- [L-Systems Turtle Graphics Renderer](http://www.kevs3d.co.uk/dev/lsystems/)
+- CIS660 Homework Assignment 2 Developing Maya Plug-ins Using MEL and C++ L-Systems
