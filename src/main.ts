@@ -19,11 +19,11 @@ import Objs2 from './geometry/Objs2';
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
   radialSegments: 6,
-  'Load Scene': loadScene, // A function pointer, essentially
+  'Generate': loadScene, // A function pointer, essentially
   color: [255, 237, 222],//255, 232, 200
   color2: [255, 62, 62],//0, 194, 255
   color3: [57, 57, 50],//0, 194, 255
-  color4: [70, 43, 4],//0, 194, 255
+  color4: [49, 29, 0],//0, 194, 255
   shader: 'fun',
   drawable: 'sphere',
   start: "FFFFFFFFFFFFFF",
@@ -53,11 +53,11 @@ const controls = {
   directionz: 1.0,
   amount: 0.08,
   amount2: 1.5,
-  strength: 2.0,
+  strength: 1.0,
 
   fallingnum: 100,
   fallingspeed: 5.0,
-  strength2: 1.0,
+  strength2: 2.0,
   lightposy: 80,
 
   lightvecx: 0.2,//1.0,
@@ -99,8 +99,8 @@ function readTextFile(file: string): string
     return allTest;
 }
 
-var bunny = readTextFile("/src/mesh/test5.obj");
-var bunny2 = readTextFile("/src/mesh/test6.obj");
+var bunny = readTextFile("/src/mesh/leaf.obj");
+var bunny2 = readTextFile("/src/mesh/stage.obj");
 var dirtroute = readTextFile("/src/mesh/dirt.obj");
 
 function cutrule(ruleleft: string[], ruleright: string[], rule: string){
@@ -255,7 +255,7 @@ function main() {
   f5.add(controls, 'lightvecz', -1, 1.0).step(0.01);
   f5.add(controls, 'lightlerp', 0, 1.0).step(0.01);
   f5.add(controls, 'lightambient', 0, 1.0).step(0.01);
-  gui.add(controls, 'Load Scene');
+  gui.add(controls, 'Generate');
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
