@@ -98,14 +98,12 @@ void main()
                                                             // perpendicular to the surface after the surface is transformed by
                                                             // the model matrix.
 
-    float h1 = FBM(vec3(vs_Pos), 3.0) - 0.5;
-    fs_offset = h1 * sin(u_Time + (h1 + 0.5) * 40.0);
-
-    //mat4 rotatematrix = rotationMatrix(vec3(0.0, 1.0, 0.0), u_Time );
+    //mat4 rotatematrix = rotationMatrix(vec3(0.0, 1.0, 0.0), u_Time / 50.0 );
+    float h1 = FBM(vec3(vs_Pos), 3.0);
+    fs_offset = h1;
 
     //vec4 modelposition = u_Model * rotatematrix * (vs_Pos + 0.5 * vs_Nor * sin(h1 + sin(u_Time)*3.1415));   // Temporarily store the transformed vertex positions for use below
-    vec4 modelposition = u_Model * (vs_Pos + vs_Nor * fs_offset);
-    fs_offset *= 3.5;
+    vec4 modelposition = u_Model * vs_Pos;
 
     fs_LightVec = lightPos - modelposition;  // Compute the direction in which the light source lies
 

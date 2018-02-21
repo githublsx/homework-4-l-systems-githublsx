@@ -21,7 +21,7 @@ in vec4 fs_Col;
 
 out vec4 out_Col; // This is the final output color that you will see on your
                   // screen for the pixel that is currently being processed.
-
+uniform float u_Lightambient;
 void main()
 {
     // Material base color (before shading)
@@ -32,9 +32,7 @@ void main()
         // Avoid negative lighting values
          diffuseTerm = clamp(diffuseTerm, 0.0, 1.0);
 
-        float ambientTerm = 0.2;
-
-        float lightIntensity = diffuseTerm + ambientTerm;   //Add a small float value to the color multiplier
+        float lightIntensity = diffuseTerm + u_Lightambient;   //Add a small float value to the color multiplier
                                                             //to simulate ambient lighting. This ensures that faces that are not
                                                             //lit by our point light are not completely black.
 

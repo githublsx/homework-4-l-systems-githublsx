@@ -20,7 +20,7 @@ import Objs2 from './geometry/Objs2';
 const controls = {
   radialSegments: 6,
   'Load Scene': loadScene, // A function pointer, essentially
-  color: [255, 237, 222],
+  color: [255, 237, 222],//255, 232, 200
   color2: [255, 62, 62],//0, 194, 255
   color3: [57, 57, 50],//0, 194, 255
   color4: [70, 43, 4],//0, 194, 255
@@ -57,6 +57,14 @@ const controls = {
 
   fallingnum: 100,
   fallingspeed: 5.0,
+  strength2: 1.0,
+  lightposy: 80,
+
+  lightvecx: 0.2,//1.0,
+  lightvecy: -0.6,//1.0,
+  lightvecz: -0.1,//1.0,
+  lightlerp: 0.05,
+  lightambient: 0.3,
 };
 
 let icosphere: Icosphere;
@@ -114,7 +122,7 @@ function cutrule(ruleleft: string[], ruleright: string[], rule: string){
 
 function loadScene() {
 
-  square = new Square(vec3.fromValues(0, 0, 0));
+  square = new Square(vec3.fromValues(0, 0, 0), 600.0, 1.0);
   square.create();
   cube = new Cube(vec3.fromValues(2, 2, 2));
   cube.create();
@@ -165,8 +173,7 @@ function loadScene() {
   //   icosphere.create();
   //   icospheres.push(icosphere);
   // }
-  // icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
-  // icosphere.create();
+
 }
 
 
@@ -230,6 +237,7 @@ function main() {
   var f2b = f2.addFolder('Off');
   f2b.add(controls, 'fallingnum', 0, 200).step(1);
   f2b.add(controls, 'fallingspeed', 0, 10).step(0.01);
+  f2b.add(controls, 'strength2', 0, 10.0).step(0.01);
   var f4 = gui.addFolder('Others');
   f4.addColor(controls, 'color3');
   f4.addColor(controls, 'color4');
@@ -239,7 +247,14 @@ function main() {
   f3.add(controls, 'directionz', -1.0, 1.0).step(0.01);
   f3.add(controls, 'amount', 0, 1.0).step(0.01);
   f3.add(controls, 'amount2', 0, 6.0).step(0.01);
-  f3.add(controls, 'strength', 0, 8.0).step(0.01);
+  f3.add(controls, 'strength', 0, 10.0).step(0.01);
+  var f5 = gui.addFolder('Light');
+  f5.add(controls, 'lightposy', 0, 200.0).step(0.01);
+  f5.add(controls, 'lightvecx', -1, 1.0).step(0.01);
+  f5.add(controls, 'lightvecy', -1, 1.0).step(0.01);
+  f5.add(controls, 'lightvecz', -1, 1.0).step(0.01);
+  f5.add(controls, 'lightlerp', 0, 1.0).step(0.01);
+  f5.add(controls, 'lightambient', 0, 1.0).step(0.01);
   gui.add(controls, 'Load Scene');
 
   // get canvas and webgl context
@@ -253,12 +268,16 @@ function main() {
   setGL(gl);
 
   // Initial call to load scene
+  
+  icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 500, 8);
+  icosphere.create();
+
   loadScene();
 
   const camera = new Camera(vec3.fromValues(110, 60, 0), vec3.fromValues(0, 45, 0));
 
   const renderer = new OpenGLRenderer(canvas);
-  renderer.setClearColor(0.2, 0.2, 0.2, 1);
+  renderer.setClearColor(20/255, 20/255, 20/255, 1);
   gl.enable(gl.DEPTH_TEST);
   gl.cullFace(gl.BACK);
   gl.enable(gl.CULL_FACE);
@@ -276,6 +295,11 @@ function main() {
   const lambert3 = new ShaderProgram([
     new Shader(gl.VERTEX_SHADER, require('./shaders/lambert-vert1.glsl')),
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')),
+  ]);
+
+  const lambert4 = new ShaderProgram([
+    new Shader(gl.VERTEX_SHADER, require('./shaders/lambert-vert2.glsl')),
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag2.glsl')),
   ]);
 
   var lastUpdate = Date.now();
@@ -322,12 +346,26 @@ function main() {
     lambert.setDirectionx(controls.directionx);
     lambert.setDirectionz(controls.directionz);
     lambert.setStrength(controls.strength);
+
+    lambert.setLightposy(controls.lightposy);
+    lambert2.setLightposy(controls.lightposy);
+    lambert3.setLightposy(controls.lightposy);
+    lambert.setLightambient(controls.lightambient);
+    lambert2.setLightambient(controls.lightambient);
+    lambert3.setLightambient(controls.lightambient);
+    lambert.setLightvec(vec4.fromValues(controls.lightvecx, controls.lightvecy, controls.lightvecz, 0.0));
+    lambert2.setLightvec(vec4.fromValues(controls.lightvecx, controls.lightvecy, controls.lightvecz, 0.0));
+    lambert3.setLightvec(vec4.fromValues(controls.lightvecx, controls.lightvecy, controls.lightvecz, 0.0));
+    lambert.setLightlerp(controls.lightlerp);
+    lambert2.setLightlerp(controls.lightlerp);
+    lambert3.setLightlerp(controls.lightlerp);
+
     lambert3.setAmount(controls.amount);
     lambert3.setAmount2(controls.amount2);
     lambert3.setHeight(controls.height);
     lambert3.setDirectionx(controls.directionx);
     lambert3.setDirectionz(controls.directionz);
-    lambert3.setStrength(controls.strength);
+    lambert3.setStrength(controls.strength + controls.strength2);
     lambert3.setSpeed(controls.fallingspeed);
 
     renderer.render(camera, lambert, [cylinders], //[icosphere,//square,cube,], 
@@ -339,6 +377,9 @@ function main() {
     renderer.render(camera, lambert2, [obj], //[icosphere,//square,cube,], 
       vec4.fromValues(controls.color3[0]/255, controls.color3[1]/255, controls.color3[2]/255, 1), dt/1000.0);
 
+    renderer.render(camera, lambert2, [square], //[icosphere,//square,cube,], 
+      vec4.fromValues(controls.color3[0]/255, controls.color3[1]/255, controls.color3[2]/255, 1), dt/1000.0);
+
     renderer.render(camera, lambert2, [dirt], //[icosphere,//square,cube,], 
       vec4.fromValues(controls.color4[0]/255, controls.color4[1]/255, controls.color4[2]/255, 1), dt/1000.0);
 
@@ -347,6 +388,9 @@ function main() {
 
     renderer.render(camera, lambert3, [objs2], //[icosphere,//square,cube,], 
       vec4.fromValues(controls.color2[0]/255, controls.color2[1]/255, controls.color2[2]/255, 1), dt/1000.0);
+
+    renderer.render(camera, lambert4, [icosphere], //[icosphere,//square,cube,], 
+      vec4.fromValues(20/255, 20/255, 20/255, 1), dt/1000.0);  
     
       stats.end();
 

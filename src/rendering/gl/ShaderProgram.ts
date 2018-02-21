@@ -40,6 +40,11 @@ class ShaderProgram {
   unifStrength: WebGLUniformLocation;
 
   unifSpeed: WebGLUniformLocation; 
+  unifLightposy: WebGLUniformLocation;
+
+  unifLightvec: WebGLUniformLocation;
+  unifLightlerp: WebGLUniformLocation;
+  unifLightambient: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -68,6 +73,10 @@ class ShaderProgram {
     this.unifAmount2      = gl.getUniformLocation(this.prog, "u_Amount2");
     this.unifStrength     = gl.getUniformLocation(this.prog, "u_Strength");
     this.unifSpeed     = gl.getUniformLocation(this.prog, "u_Speed");
+    this.unifLightposy = gl.getUniformLocation(this.prog, "u_Lightposy");
+    this.unifLightvec = gl.getUniformLocation(this.prog, "u_Lightvec");
+    this.unifLightlerp = gl.getUniformLocation(this.prog, "u_Lightlerp");
+    this.unifLightambient = gl.getUniformLocation(this.prog, "u_Lightambient");
     
   }
 
@@ -159,6 +168,34 @@ class ShaderProgram {
     this.use();
     if (this.unifSpeed !== -1) {
       gl.uniform1f(this.unifSpeed, time);
+    }
+  }
+
+  setLightposy(time: number) {
+    this.use();
+    if (this.unifLightposy !== -1) {
+      gl.uniform1f(this.unifLightposy, time);
+    }
+  }
+
+  setLightvec(color: vec4) {
+    this.use();
+    if (this.unifLightvec !== -1) {
+      gl.uniform4fv(this.unifLightvec, color);
+    }
+  }
+
+  setLightlerp(time: number) {
+    this.use();
+    if (this.unifLightlerp !== -1) {
+      gl.uniform1f(this.unifLightlerp, time);
+    }
+  }
+
+  setLightambient(time: number) {
+    this.use();
+    if (this.unifLightambient !== -1) {
+      gl.uniform1f(this.unifLightambient, time);
     }
   }
 

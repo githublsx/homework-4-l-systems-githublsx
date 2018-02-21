@@ -61,7 +61,7 @@ class Objs2 extends Drawable {
     {
       var verticeslength = vertices.length / 4;
       var startpoint = this.generaterandompos();
-      var endpoint = vec3.fromValues(Math.random(), Math.random(), Math.random());
+      var endpoint = vec3.fromValues(Math.random()*2-1, Math.random()*2-1, Math.random()*2-1);
       vec3.normalize(endpoint, endpoint);
       var rotation = this.computeRotationMatrix(startpoint, endpoint);
       var translate = startpoint;
