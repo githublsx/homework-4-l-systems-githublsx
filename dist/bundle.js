@@ -3420,11 +3420,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
     radialSegments: 6,
-    'Load Scene': loadScene,
+    'Generate': loadScene,
     color: [255, 237, 222],
     color2: [255, 62, 62],
     color3: [57, 57, 50],
-    color4: [70, 43, 4],
+    color4: [49, 29, 0],
     shader: 'fun',
     drawable: 'sphere',
     start: "FFFFFFFFFFFFFF",
@@ -3453,10 +3453,10 @@ const controls = {
     directionz: 1.0,
     amount: 0.08,
     amount2: 1.5,
-    strength: 2.0,
+    strength: 1.0,
     fallingnum: 100,
     fallingspeed: 5.0,
-    strength2: 1.0,
+    strength2: 2.0,
     lightposy: 80,
     lightvecx: 0.2,
     lightvecy: -0.6,
@@ -3490,8 +3490,8 @@ function readTextFile(file) {
     rawFile.send(null);
     return allTest;
 }
-var bunny = readTextFile("/src/mesh/test5.obj");
-var bunny2 = readTextFile("/src/mesh/test6.obj");
+var bunny = readTextFile("/src/mesh/leaf.obj");
+var bunny2 = readTextFile("/src/mesh/stage.obj");
 var dirtroute = readTextFile("/src/mesh/dirt.obj");
 function cutrule(ruleleft, ruleright, rule) {
     if (rule != "") {
@@ -3620,7 +3620,7 @@ function main() {
     f5.add(controls, 'lightvecz', -1, 1.0).step(0.01);
     f5.add(controls, 'lightlerp', 0, 1.0).step(0.01);
     f5.add(controls, 'lightambient', 0, 1.0).step(0.01);
-    gui.add(controls, 'Load Scene');
+    gui.add(controls, 'Generate');
     // get canvas and webgl context
     const canvas = document.getElementById('canvas');
     const gl = canvas.getContext('webgl2');
