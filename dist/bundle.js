@@ -3490,9 +3490,9 @@ function readTextFile(file) {
     rawFile.send(null);
     return allTest;
 }
-var bunny = readTextFile("/src/mesh/leaf.obj");
-var bunny2 = readTextFile("/src/mesh/stage.obj");
-var dirtroute = readTextFile("/src/mesh/dirt.obj");
+var bunny = readTextFile("./src/mesh/leaf.obj");
+var bunny2 = readTextFile("./src/mesh/stage.obj");
+var dirtroute = readTextFile("./src/mesh/dirt.obj");
 function cutrule(ruleleft, ruleright, rule) {
     if (rule != "") {
         for (let i = 1; i < rule.length; i++) {

@@ -99,9 +99,9 @@ function readTextFile(file: string): string
     return allTest;
 }
 
-var bunny = readTextFile("/src/mesh/leaf.obj");
-var bunny2 = readTextFile("/src/mesh/stage.obj");
-var dirtroute = readTextFile("/src/mesh/dirt.obj");
+var bunny = readTextFile("./src/mesh/leaf.obj");
+var bunny2 = readTextFile("./src/mesh/stage.obj");
+var dirtroute = readTextFile("./src/mesh/dirt.obj");
 
 function cutrule(ruleleft: string[], ruleright: string[], rule: string){
   if(rule!="")
